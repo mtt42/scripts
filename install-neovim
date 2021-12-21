@@ -1,0 +1,21 @@
+#!/bin/bash
+
+VERSION="0.6.0"
+
+if [ "$1" == "" ]; then
+  VERSION="$VERSION"
+fi
+
+SOURCE="https://github.com/neovim/neovim/releases/download/v$VERSION/nvim.appimage"
+
+TARGET="/usr/local/bin/nvim"
+
+sudo curl -L $SOURCE -o $TARGET
+
+sudo chmod 755 $TARGET
+
+echo
+nvim --version | head -1
+
+
+  
