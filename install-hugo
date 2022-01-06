@@ -1,0 +1,20 @@
+#!/bin/bash
+
+VERSION="0.91.2"
+
+if [ -z "$1" ] 
+then 
+  VERSION="0.91.2"
+else 
+  VERSION=$1
+fi
+
+SOURCE="https://github.com/gohugoio/hugo/releases/download/v${VERSION}/hugo_extended_${VERSION}_Linux-64bit.tar.gz"
+TARGET="$HOME/downloads/hugo_extended_${VERSION}_Linux-64bit.tar.gz"
+
+wget $SOURCE -O $TARGET
+tar -xf $TARGET -C "$HOME/.local/bin/"
+
+
+
+printf "Hugo Version $VERSION has been installed!\n"

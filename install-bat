@@ -15,5 +15,3 @@ wget https://github.com/sharkdp/bat/releases/download/v${VERSION}/$DEBIAN_PACKAG
 sudo dpkg -i $DEBIAN_PACKAGE
 rm $DEBIAN_PACKAGE
 
-echo
-'"bat" has been installed'
