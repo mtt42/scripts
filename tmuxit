@@ -1,0 +1,43 @@
+#!/bin/bash
+# This scripts opens fzf with a list of specified
+# folders and opens the selected directory with a Tmux
+# session.
+
+if [[ $# -eq 1 ]]; then
+    # Hand over a path directly
+    directory=$1
+else
+    # Or select from a folder list within a specified directory
+    directory=$(find ~/projects/personal ~/projects/work -type d -mindepth 1 -maxdepth 1 | fzf)
+fi
+
+if [[ -z "$directory" ]]; then
+    exit 0
+fi
+
+# Name session after basename
+session_name=$(basename "$directory" | tr . _)
+
+# Get Tmux process id 
+tmux_running=$(pgrep tmux)
+
+# Check if tmux is running and if we are already within Tmux
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s "$session_name" -c "$directory"
+    exit 0
+fi
+
+# Check if session name already exists
+if ! tmux has-session -t="$session_name" 2> /dev/null; then
+    tmux new-session -ds "$session_name" -c "$directory"
+fi
+
+# If we are not in tmux, we attach to the session
+
+if ! [[ $TMUX ]]; then 
+  # If we are not in tmux, we attach to the session
+  tmux attach-session -t "$session_name"
+else
+  # If we are in Tmux already we switch to it
+  tmux switch-client -t "$session_name"
+fi
