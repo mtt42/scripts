@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Set default AWS profile
+DEFAULT_AWS_PROFILE="default"
+
+# Use provided profile if available, else use default
+AWS_PROFILE="${1:-$DEFAULT_AWS_PROFILE}"
+
+echo "--------------------------------------------------------------------------------"
+echo "Attempting to update credentials for profile: $AWS_PROFILE:"
+echo "--------------------------------------------------------------------------------"
+
+# Get the current access key
+OLD_ACCESS_KEY=$(aws configure get aws_access_key_id --profile "$AWS_PROFILE")
+
+# Create new access key
+NEW_KEYS=$(aws iam create-access-key --query 'AccessKey.[AccessKeyId,SecretAccessKey]' --output text --profile "$AWS_PROFILE")
+NEW_ACCESS_KEY=$(echo "$NEW_KEYS" | cut -f 1)
+NEW_SECRET_KEY=$(echo "$NEW_KEYS" | cut -f 2)
+
+# Update profile with new access key
+echo "1: Configuring new ACCESS_KEY_ID"
+aws configure set aws_access_key_id "$NEW_ACCESS_KEY" --profile "$AWS_PROFILE"
+
+echo "2: Configuring new ACCESS_SECRET_KEY"
+aws configure set aws_secret_access_key "$NEW_SECRET_KEY" --profile "$AWS_PROFILE"
+echo "---------------------------------------------------------------------------------"
+
+# Wait a little...
+sleep 5
+
+# Test new access key with S3 bucket listing
+aws s3 ls --profile "$AWS_PROFILE" > /dev/null 2>&1
+
+if [ $? -ne 0 ]
+then
+  echo "ERROR: New access key is not working, aborting..."
+  exit 1
+fi
+
+# Delete old access key
+aws iam delete-access-key --access-key-id "$OLD_ACCESS_KEY" --profile "$AWS_PROFILE"
+
+echo "SUCCESS: Access key rotated for profile $AWS_PROFILE."
+echo "--------------------------------------------------------------------------------"
+echo "INFO: Setting AWS_PROFILE back to $DEFAULT_AWS_PROFILE."
+
+AWS_PROFILE="default"
+echo "INFO: AWS_PROFILE set back to: $DEFAULT_AWS_PROFILE"
+
