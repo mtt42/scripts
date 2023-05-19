@@ -8,7 +8,7 @@ if [[ $# -eq 1 ]]; then
     directory=$1
 else
     # Or select from a folder list within a specified directory
-    directory=$(find ~/projects/personal ~/projects/work -type d -mindepth 1 -maxdepth 1 | fzf)
+    directory=$(find ~/ ~/projects/personal ~/projects/work -type d -mindepth 1 -maxdepth 1 | fzf)
 fi
 
 if [[ -z "$directory" ]]; then
@@ -38,6 +38,6 @@ if ! [[ $TMUX ]]; then
   # If we are not in tmux, we attach to the session
   tmux attach-session -t "$session_name"
 else
-  # If we are in Tmux already we switch to it
+  # If we are in Tmux already, we switch to it
   tmux switch-client -t "$session_name"
 fi
